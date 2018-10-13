@@ -170,13 +170,14 @@ float *getSolucao(float **matrizSistema, int columns, int rows) {
 
 	for (int i = 0; i < rows; i++) {
 		valorDiagonalPrincipal = matrizSistema[i][i];
-		linhaAtual = (float*)malloc(sizeof(float) * columns);
-		for (int k = 0; k < columns; k++) {
-			linhaAtual[k] = matrizSistema[i][k];
-		}//tem a linha atual
 
 		for (int j = 0; j < rows; j++) {
 			if (j != i) {
+				linhaAtual = (float*)malloc(sizeof(float) * columns);
+				for (int k = 0; k < columns; k++) {
+					linhaAtual[k] = matrizSistema[i][k];
+				}//tem a linha atual
+
 				if (matrizSistema[j][i] != 0) {
 					valorMult = -(matrizSistema[j][i] / valorDiagonalPrincipal);
 
@@ -185,6 +186,7 @@ float *getSolucao(float **matrizSistema, int columns, int rows) {
 				}
 				printf("\n =\n");
 				printFloatMatrix(matrizSistema, qtdSistemas + 1, qtdSistemas);
+				free(linhaAtual);
 			}
 		}//deixa tudo menos a diagonal principal igual a zero e o valor da diagonal principal igual a 1
 
