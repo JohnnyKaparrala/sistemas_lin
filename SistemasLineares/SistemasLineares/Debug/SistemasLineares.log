@@ -1,10 +1,2 @@
 ﻿  main.c
-c:\users\alvarez\desktop\sistemas_lin\sistemaslineares\sistemaslineares\main.c(82): warning C4047: 'function': 'char *' differs in levels of indirection from 'char **'
-c:\users\alvarez\desktop\sistemas_lin\sistemaslineares\sistemaslineares\main.c(82): warning C4024: 'getPos': different types for formal and actual parameter 1
-c:\users\alvarez\desktop\sistemas_lin\sistemaslineares\sistemaslineares\main.c(82): warning C4047: 'function': 'char **' differs in levels of indirection from 'int'
-c:\users\alvarez\desktop\sistemas_lin\sistemaslineares\sistemaslineares\main.c(82): warning C4024: 'getPos': different types for formal and actual parameter 2
-c:\users\alvarez\desktop\sistemas_lin\sistemaslineares\sistemaslineares\main.c(82): warning C4020: 'getPos': too many actual parameters
-c:\users\alvarez\desktop\sistemas_lin\sistemaslineares\sistemaslineares\main.c(183): warning C4028: formal parameter 1 different from declaration
-c:\users\alvarez\desktop\sistemas_lin\sistemaslineares\sistemaslineares\main.c(183): warning C4028: formal parameter 2 different from declaration
-c:\users\alvarez\desktop\sistemas_lin\sistemaslineares\sistemaslineares\main.c(183): warning C4029: declared formal parameter list different from definition
   SistemasLineares.vcxproj -> C:\Users\alvarez\Desktop\sistemas_lin\SistemasLineares\Debug\SistemasLineares.exe
