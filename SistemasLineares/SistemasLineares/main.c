@@ -12,6 +12,7 @@ void addChar(char c, char *s);
 char *criarString();
 void printIntMatrix(int** matrix, int columns, int rows);
 bool isNumber(char c);
+int getPos(char* s, char **strArray);
 
 char opcao;
 FILE *f;
@@ -29,6 +30,9 @@ char* stringVarAtual;
 int posAtualLinha = 0;
 int posAtualColuna = -1;
 int numASerInserido;
+int posVar = -1;
+
+char **vars;
 
 int main() {
 	do {
@@ -51,9 +55,17 @@ int main() {
 		qtdSistemas = atoi(qtdSistemasString);
 		printf("%d\n\n", qtdSistemas);
 
+		vars = (char**)malloc(qtdSistemas);
+
 		matrizSistema = (int**)malloc(sizeof(int*) * qtdSistemas + 1);//mais um pra colocar o resultado
 		for (int i = 0; i < qtdSistemas + 1; i++) {
 			matrizSistema[i] = (int*)malloc(sizeof(int*) * qtdSistemas);
+		}
+
+		for (int i = 0;i < qtdSistemas + 1;i++) {//enche a matriz com 0
+			for (int j = 0;j < qtdSistemas;j++) {
+				matrizSistema[i][j] = 0;
+			}
 		}
 
 		do
@@ -67,7 +79,16 @@ int main() {
 					lendoVar = false;
 
 					//insere o valor neg ou pos
-					matrizSistema[posAtualLinha][posAtualColuna] = numASerInserido;
+					int posCol = getPos(vars, posVar + 1, stringVarAtual);
+					if (posCol < 0) {//se var n existe dar pos pra ela
+						posVar++;
+						posCol = posVar;
+						vars[posVar] = (char*)malloc(strlen(stringVarAtual));
+						strcpy(vars[posVar], stringVarAtual);
+					}//se existe colocar na pos dela
+
+
+					matrizSistema[posAtualLinha][posCol] = numASerInserido;
 
 					free(stringVarAtual);
 				}
@@ -96,7 +117,6 @@ int main() {
 							numNegativo = false;
 						}
 
-						posAtualColuna++;
 						lendoNum = false;
 						lendoVar = true;
 						stringVarAtual = criarString();
@@ -109,18 +129,17 @@ int main() {
 						numASerInserido *= -1;
 						numNegativo = false;
 					}
-					posAtualColuna++;
-					matrizSistema[posAtualLinha][posAtualColuna] = atoi(stringNumAtual);
+
+					matrizSistema[posAtualLinha][qtdSistemas] = atoi(stringNumAtual);
 
 					posAtualLinha++;
-					posAtualColuna = -1;
 					lendoNum = false;
 					lendoVar = false;
 				}
 
 			}
 		} while (ch != EOF);
-
+		
 		printIntMatrix(matrizSistema,qtdSistemas + 1, qtdSistemas);
 
 		printf("\nSair do programa? (s/n)\n");
@@ -159,4 +178,14 @@ bool isNumber(char c) {
 
 void inserirNaMatriz() {
 
+}
+
+int getPos(char **arr, int len, char *target) {
+	int i;
+	for (i = 0; i < len; i++) {
+		if (strncmp(arr[i], target, strlen(target)) == 0) {
+			return i;
+		}
+	}
+	return -1;
 }
