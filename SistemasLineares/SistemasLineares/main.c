@@ -65,6 +65,11 @@ int main() {
 
 				if ((ch == '+' || ch == '-' || ch == '=') && lendoVar) { // acabou a var, insere ela na litsa
 					lendoVar = false;
+
+					//insere o valor neg ou pos
+					matrizSistema[posAtualLinha][posAtualColuna] = numASerInserido;
+
+					free(stringVarAtual);
 				}
 
 				if (isNumber(ch)) {
@@ -76,28 +81,27 @@ int main() {
 				}
 				else if (isalpha(ch)) {
 					if (!lendoVar) {
+						if (lendoNum) {//estava lendo um num
+							//val a ser inserido recebe o coef
+							numASerInserido = atoi(stringNumAtual);
+							free(stringNumAtual);
+						}
+						else {
+							//val a ser inserido recebe 1
+							numASerInserido = 1;
+						}
+
+						if (numNegativo) {
+							numASerInserido *= -1;
+							numNegativo = false;
+						}
+
+						posAtualColuna++;
+						lendoNum = false;
 						lendoVar = true;
 						stringVarAtual = criarString();
 					}
-					if (lendoNum) {//estava lendo um num
-						lendoNum = false;
-						posAtualColuna++;
-						//val a ser inserido recebe o coef
-						numASerInserido = atoi(stringNumAtual);
-					}
-					else {
-						//val a ser inserido recebe 1
-						posAtualColuna++;
-						numASerInserido = 1;
-					}
-
-					//insere o valor neg ou pos
-					if (numNegativo) {
-						numASerInserido *= -1;
-						numNegativo = false;
-					}
-					matrizSistema[posAtualLinha][posAtualColuna] = numASerInserido;
-					free(stringNumAtual);
+					addChar(ch, stringVarAtual);
 				}
 				else if (ch == '\n' || (ch == EOF)) {
 					//insere o num atual
