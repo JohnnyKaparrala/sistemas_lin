@@ -5,6 +5,9 @@
 #include <string.h>
 #include <ctype.h>
 #define MAX_LENGTH 32000
+#define SUCESSO 0
+#define NAO_SPD -1
+#define ERRO -1
 
 typedef enum { false, true } bool;//todo ver caso onde tem q resolver de novo da apostila
 //todo deixar a mstriz p/ float
@@ -14,7 +17,7 @@ char *criarString();
 void printFloatMatrix(float** matrix, int columns, int rows);
 bool isNumber(char c);
 int getPos(char **arr, int len, char *target);
-float *getSolucao(float **matrizSistema, int columns, int rows);
+int getSolucao(float *solucao, float **matrizSistema, int columns, int rows);
 void multiplicarLinha(float *linhaAtual, int tam, float valorMult);
 float *somarFila(int tam, float *fila1, float *fila2);
 
@@ -148,8 +151,13 @@ int main() {
 
 		resultados = (float*)malloc(sizeof(int) * qtdSistemas);
 
-		resultados = getSolucao(matrizSistema, qtdSistemas + 1, qtdSistemas);
-
+		int res = getSolucao(resultados, matrizSistema, qtdSistemas + 1, qtdSistemas);
+		if (res != SUCESSO) {
+			if (res == NAO_SPD) {
+				fprintf(stderr, "%s", "O sistema nao eh S.P.D.!\n");
+				//return ERRO;
+			}
+		}
 		printf("\n==========\n");
 		for (int i = 0; i < qtdSistemas; i++) {
 			printf("%s = %.6f\n", vars[i], resultados[i]);
@@ -162,11 +170,11 @@ int main() {
 	return 0;
 }
 
-float *getSolucao(float **matrizSistema, int columns, int rows) {
+int getSolucao(float * solucao, float **matrizSistema, int columns, int rows) {
 	float valorDiagonalPrincipal;
 	float *linhaAtual;//precisa virar lista
 	float valorMult;
-	float *ret;
+	int cont = 0;
 
 	for (int i = 0; i < rows; i++) {
 		valorDiagonalPrincipal = matrizSistema[i][i];
@@ -183,6 +191,17 @@ float *getSolucao(float **matrizSistema, int columns, int rows) {
 
 					multiplicarLinha(linhaAtual, columns, valorMult);
 					matrizSistema[j] = somarFila(columns, matrizSistema[j], linhaAtual);
+
+					for (int z = 0; z < columns; z++) {//ve se a linha inteira eh zero, se for, nao eh spd
+						if (matrizSistema[j][z] == 0)
+							cont++;
+					}
+					if (cont >= columns) {
+						return NAO_SPD;
+					}
+					else {
+						cont = 0;
+					}
 				}
 				printf("\n =\n");
 				printFloatMatrix(matrizSistema, qtdSistemas + 1, qtdSistemas);
@@ -193,14 +212,12 @@ float *getSolucao(float **matrizSistema, int columns, int rows) {
 		valorMult = 1 / valorDiagonalPrincipal;
 		multiplicarLinha(matrizSistema[i], qtdSistemas + 1, valorMult);
 	}
-
-	ret = (float*)malloc(sizeof(float) * rows);
 	
 	for (int i = 0; i < rows; i++) {
-		ret[i] = matrizSistema[i][rows];
+		solucao[i] = matrizSistema[i][rows];
 	}
 
-	return ret;
+	return SUCESSO;
 }
 
 float *somarFila(int tam, float *fila1, float *fila2) {
