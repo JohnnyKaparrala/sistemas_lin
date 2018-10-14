@@ -184,7 +184,7 @@ int conferirMatriz(float **matrizSistema, int columns, int rows)
 	float **matrizSistemaNova = (float**)malloc(sizeof(float*) * qtdSistemas + 1);//mais um pra colocar o resultado
 	matrizSistemaNova = matrizSistema;
 
-	if(columns-1 == rows) //collumns-1 porque na matriz tem uma coluna dos resultados da equação na matriz
+	if (columns - 1 == rows) //collumns-1 porque na matriz tem uma coluna dos resultados da equação na matriz
 	{
 		for (i; i <= rows; i++)
 		{
@@ -207,7 +207,7 @@ int conferirMatriz(float **matrizSistema, int columns, int rows)
 							j = 0; //zerando var j.
 						}
 
-					} 
+					}
 					if (trocou != 1 && contagem != rows) //se ele nao fez nenhuma troca, e se ele nao percorreu todas as linhas.
 						goto conferirLinhasDescrescente;
 
@@ -238,14 +238,18 @@ int conferirMatriz(float **matrizSistema, int columns, int rows)
 					if (trocou == 0) // se ele nao encontrou outra posição para trocar pois todas sao zero nessa posicao ele vai retornar -1. 
 						// a matriz vai continuar da mesma forma que estava antes, onde do getSolucao será tratado corretamente do erro.
 						return -1;
-					
+
 				}
 			}
 		}
 		matrizSistema = matrizSistemaNova;
 		free(matrizSistemaNova);
+		return 0; //tudo deu certo. a troca foi bem sucedida. ou nao tinha oque mudar.
 
-	return 0;
+	}// se nao for uma matriz quadrada, não é nescessario fazer nada. quando for para o getSolucao ele tratará disso.
+		
+	
+	return -1;
 }
 
 int getSolucao(float * solucao, float **matrizSistema, int columns, int rows) {
