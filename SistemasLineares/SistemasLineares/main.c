@@ -44,6 +44,10 @@ char **vars;//precisa ser lista
 float *resultados;
 
 int main() {
+	int i;
+	int j;
+	int res;
+
 	do {
 		f = fopen("C:/temp/teste.txt", "r");
 
@@ -67,12 +71,12 @@ int main() {
 		vars = (char**)malloc(qtdSistemas);
 
 		matrizSistema = (float**)malloc(sizeof(float*) * qtdSistemas + 1);//mais um pra colocar o resultado
-		for (int i = 0; i < qtdSistemas + 1; i++) {
+		for (i = 0; i < qtdSistemas + 1; i++) {
 			*(matrizSistema + i) = (float*)malloc(sizeof(float*) * qtdSistemas);
 		}
 
-		for (int i = 0;i < qtdSistemas + 1;i++) {//enche a matriz com 0
-			for (int j = 0;j < qtdSistemas;j++) {
+		for (i = 0;i < qtdSistemas + 1;i++) {//enche a matriz com 0
+			for (j = 0;j < qtdSistemas;j++) {
 				*(*(matrizSistema + i) + j) = 0;
 			}
 		}
@@ -85,10 +89,11 @@ int main() {
 					numNegativo = true;
 
 				if ((ch == '+' || ch == '-' || ch == '=') && lendoVar) { // acabou a var, insere ela na litsa
+					int posCol;
 					lendoVar = false;
 
 					//insere o valor neg ou pos
-					int posCol = getPos(vars, posVar + 1, stringVarAtual);
+					posCol = getPos(vars, posVar + 1, stringVarAtual);
 					if (posCol < 0) {//se var n existe dar pos pra ela
 						posVar++;
 						posCol = posVar;
@@ -152,9 +157,7 @@ int main() {
 		resultados = (float*)malloc(sizeof(int) * qtdSistemas);
 
 		//para ser possivel fazer a solução.
-
-
-		int res = getSolucao(resultados, matrizSistema, qtdSistemas + 1, qtdSistemas);
+		res = getSolucao(resultados, matrizSistema, qtdSistemas + 1, qtdSistemas);
 		if (res != SUCESSO) {
 			if (res == NAO_SPD) {
 				fprintf(stderr, "%s", "O sistema nao eh S.P.D.!\n");
