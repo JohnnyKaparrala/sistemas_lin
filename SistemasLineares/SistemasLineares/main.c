@@ -151,6 +151,10 @@ int main() {
 
 		resultados = (float*)malloc(sizeof(int) * qtdSistemas);
 
+		conferirMatriz(matrizSistema, qtdSistemas + 1, qtdSistemas); //conferindo se a matriz tem algum 0 na diagonal e se tem mudando as linhas
+		//para ser possivel fazer a solução.
+		
+
 		int res = getSolucao(resultados, matrizSistema, qtdSistemas + 1, qtdSistemas);
 		if (res != SUCESSO) {
 			if (res == NAO_SPD) {
@@ -166,6 +170,80 @@ int main() {
 		printf("\nSair do programa? (s/n)\n");
 		scanf(" %c", &opcao);
 	} while (opcao == 'n');
+
+	return 0;
+}
+
+int conferirMatriz(float **matrizSistema, int columns, int rows)
+{
+	int i = 0; //aonde conferirá as outras posições do vetor;
+	int j = 0;
+	int r = 0;
+	int contagem = 0;
+	int trocou = 0;
+	float **matrizSistemaNova = (float**)malloc(sizeof(float*) * qtdSistemas + 1);//mais um pra colocar o resultado
+	matrizSistemaNova = matrizSistema;
+
+	if(columns-1 == rows) //collumns-1 porque na matriz tem uma coluna dos resultados da equação na matriz
+	{
+		for (i; i <= rows; i++)
+		{
+			if (matrizSistema[i][i] == 0)
+			{
+				if (i != rows) // se não é a ultima linha
+				{
+					for (r; r <= rows; r++)
+					{
+						contagem++; //ver quantas linhas ele andou.
+
+						if (matrizSistema[r][i] != 0) //conferindo a proxima linha na mesma posição. 
+						{
+							for (j; j <= columns; j++)
+							{
+								matrizSistemaNova[i][j] = matrizSistema[r][j];  //linha de baixo da matrizSistema da linha i virará a nova linha i.
+								matrizSistemaNova[r][j] = matrizSistema[i][j]; //linha i  da matrizSistema virará a linha de baixo de i.
+								trocou = 1;
+							}
+							j = 0; //zerando var j.
+						}
+
+					} 
+					if (trocou != 1 && contagem != rows) //se ele nao fez nenhuma troca, e se ele nao percorreu todas as linhas.
+						goto conferirLinhasDescrescente;
+
+					r = 0; //zerando var r
+				}
+				else //se for a ultima linha
+				{
+				conferirLinhasDescrescente: //goto. vai conferir as linhas para cima.
+
+					r = rows;
+					for (r; r >= 0; r--) //camos fazer mesmo processo mas voltando.
+					{
+						if (matrizSistema[r][i] != 0) //conferindo a proxima linha na mesma posição.
+						{
+							for (j; j <= columns; j++)
+							{
+								matrizSistemaNova[i][j] = matrizSistema[r][j];  //linha de baixo da matrizSistema da linha i virará a nova linha i.
+								matrizSistemaNova[r][j] = matrizSistema[i][j]; //linha i  da matrizSistema virará a linha de baixo de i.
+								trocou = 1;
+							}
+							j = 0;
+						}
+
+					}
+
+					//nao preciso zerar r pois quando ele sair do for estará já zero.
+
+					if (trocou == 0) // se ele nao encontrou outra posição para trocar pois todas sao zero nessa posicao ele vai retornar -1. 
+						// a matriz vai continuar da mesma forma que estava antes, onde do getSolucao será tratado corretamente do erro.
+						return -1;
+					
+				}
+			}
+		}
+		matrizSistema = matrizSistemaNova;
+		free(matrizSistemaNova);
 
 	return 0;
 }
