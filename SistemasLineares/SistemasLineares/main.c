@@ -20,6 +20,7 @@ int getPos(char **arr, int len, char *target);
 int getSolucao(float *solucao, float **matrizSistema, int columns, int rows);
 void multiplicarLinha(float *linhaAtual, int tam, float valorMult);
 float *somarFila(int tam, float *fila1, float *fila2);
+void trocarLinha(float **matriz, int linha1, int linha2, int tam);
 
 char opcao;
 FILE *f;
@@ -55,7 +56,7 @@ int main() {
 
 		ch = fgetc(f);
 		while (ch != '\n') {
-			addChar (ch, qtdSistemasString);
+			addChar(ch, qtdSistemasString);
 			ch = fgetc(f);
 		}
 
@@ -144,16 +145,14 @@ int main() {
 					lendoNum = false;
 					lendoVar = false;
 				}
-
 			}
 		} while (ch != EOF);
-		printFloatMatrix(matrizSistema,qtdSistemas + 1, qtdSistemas);
+		printFloatMatrix(matrizSistema, qtdSistemas + 1, qtdSistemas);
 
 		resultados = (float*)malloc(sizeof(int) * qtdSistemas);
 
-		conferirMatriz(matrizSistema, qtdSistemas + 1, qtdSistemas); //conferindo se a matriz tem algum 0 na diagonal e se tem mudando as linhas
 		//para ser possivel fazer a solução.
-		
+
 
 		int res = getSolucao(resultados, matrizSistema, qtdSistemas + 1, qtdSistemas);
 		if (res != SUCESSO) {
@@ -166,7 +165,7 @@ int main() {
 		for (int i = 0; i < qtdSistemas; i++) {
 			printf("%s = %.6f\n", vars[i], resultados[i]);
 		}
-		
+
 		printf("\nSair do programa? (s/n)\n");
 		scanf(" %c", &opcao);
 	} while (opcao == 'n');
@@ -174,92 +173,33 @@ int main() {
 	return 0;
 }
 
-int conferirMatriz(float **matrizSistema, int columns, int rows)
-{
-	int i = 0; //aonde conferirá as outras posições do vetor;
-	int j = 0;
-	int r = 0;
-	int contagem = 0;
-	int trocou = 0;
-	float **matrizSistemaNova = (float**)malloc(sizeof(float*) * qtdSistemas + 1);//mais um pra colocar o resultado
-	matrizSistemaNova = matrizSistema;
-
-	if (columns - 1 == rows) //collumns-1 porque na matriz tem uma coluna dos resultados da equação na matriz
-	{
-		for (i; i <= rows; i++)
-		{
-			if (matrizSistema[i][i] == 0)
-			{
-				if (i != rows) // se não é a ultima linha
-				{
-					for (r; r <= rows; r++)
-					{
-						contagem++; //ver quantas linhas ele andou.
-
-						if (matrizSistema[r][i] != 0) //conferindo a proxima linha na mesma posição. 
-						{
-							for (j; j <= columns; j++)
-							{
-								matrizSistemaNova[i][j] = matrizSistema[r][j];  //linha de baixo da matrizSistema da linha i virará a nova linha i.
-								matrizSistemaNova[r][j] = matrizSistema[i][j]; //linha i  da matrizSistema virará a linha de baixo de i.
-								trocou = 1;
-							}
-							j = 0; //zerando var j.
-						}
-
-					}
-					if (trocou != 1 && contagem != rows) //se ele nao fez nenhuma troca, e se ele nao percorreu todas as linhas.
-						goto conferirLinhasDescrescente;
-
-					r = 0; //zerando var r
-				}
-				else //se for a ultima linha
-				{
-				conferirLinhasDescrescente: //goto. vai conferir as linhas para cima.
-
-					r = rows;
-					for (r; r >= 0; r--) //camos fazer mesmo processo mas voltando.
-					{
-						if (matrizSistema[r][i] != 0) //conferindo a proxima linha na mesma posição.
-						{
-							for (j; j <= columns; j++)
-							{
-								matrizSistemaNova[i][j] = matrizSistema[r][j];  //linha de baixo da matrizSistema da linha i virará a nova linha i.
-								matrizSistemaNova[r][j] = matrizSistema[i][j]; //linha i  da matrizSistema virará a linha de baixo de i.
-								trocou = 1;
-							}
-							j = 0;
-						}
-
-					}
-
-					//nao preciso zerar r pois quando ele sair do for estará já zero.
-
-					if (trocou == 0) // se ele nao encontrou outra posição para trocar pois todas sao zero nessa posicao ele vai retornar -1. 
-						// a matriz vai continuar da mesma forma que estava antes, onde do getSolucao será tratado corretamente do erro.
-						return -1;
-
-				}
-			}
-		}
-		matrizSistema = matrizSistemaNova;
-		free(matrizSistemaNova);
-		return 0; //tudo deu certo. a troca foi bem sucedida. ou nao tinha oque mudar.
-
-	}// se nao for uma matriz quadrada, não é nescessario fazer nada. quando for para o getSolucao ele tratará disso.
-		
-	
-	return -1;
-}
-
 int getSolucao(float * solucao, float **matrizSistema, int columns, int rows) {
 	float valorDiagonalPrincipal;
 	float *linhaAtual;//precisa virar lista
 	float valorMult;
 	int cont = 0;
-
+	float valorColuna;
+comeco:
 	for (int i = 0; i < rows; i++) {
 		valorDiagonalPrincipal = matrizSistema[i][i];
+
+		if (valorDiagonalPrincipal == 0) {
+			cont = i;
+			do {
+				valorColuna = matrizSistema[cont][i];
+				cont++;
+			} while (valorColuna == 0 && cont < qtdSistemas);
+
+			if (valorColuna == 0) {
+				return NAO_SPD;//significa q n tem como resolver
+			}
+			else {
+				cont--;
+				trocarLinha(matrizSistema, i, cont, qtdSistemas + 1);
+				goto comeco;
+			}
+			cont = 0;
+		}
 
 		for (int j = 0; j < rows; j++) {
 			if (j != i) {
@@ -294,7 +234,7 @@ int getSolucao(float * solucao, float **matrizSistema, int columns, int rows) {
 		valorMult = 1 / valorDiagonalPrincipal;
 		multiplicarLinha(matrizSistema[i], qtdSistemas + 1, valorMult);
 	}
-	
+
 	for (int i = 0; i < rows; i++) {
 		solucao[i] = matrizSistema[i][rows];
 	}
@@ -312,7 +252,7 @@ float *somarFila(int tam, float *fila1, float *fila2) {
 	return ret;
 }
 
-void multiplicarLinha(float *linhaAtual,int tam, float valorMult) {
+void multiplicarLinha(float *linhaAtual, int tam, float valorMult) {
 	for (int i = 0; i < tam; i++) {
 		linhaAtual[i] *= valorMult;
 	}
@@ -347,6 +287,24 @@ bool isNumber(char c) {
 
 void inserirNaMatriz() {
 
+}
+
+void trocarLinha(float **matriz, int linha1, int linha2, int tam) {
+	int i;
+	float *linhaAux = (float*)malloc(sizeof(float) * tam);
+	for (i = 0; i < tam; i++) {
+		linhaAux[i] = matriz[linha1][i];
+	}
+
+	for (i = 0; i < tam; i++) {
+		matriz[linha1][i] = matriz[linha2][i];
+	}
+
+	for (i = 0; i < tam; i++) {
+		matriz[linha2][i] = linhaAux[i];
+	}
+
+	free(linhaAux);
 }
 
 int getPos(char **arr, int len, char *target) {
