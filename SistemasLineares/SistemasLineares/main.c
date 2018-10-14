@@ -68,12 +68,12 @@ int main() {
 
 		matrizSistema = (float**)malloc(sizeof(float*) * qtdSistemas + 1);//mais um pra colocar o resultado
 		for (int i = 0; i < qtdSistemas + 1; i++) {
-			matrizSistema[i] = (float*)malloc(sizeof(float*) * qtdSistemas);
+			*(matrizSistema + i) = (float*)malloc(sizeof(float*) * qtdSistemas);
 		}
 
 		for (int i = 0;i < qtdSistemas + 1;i++) {//enche a matriz com 0
 			for (int j = 0;j < qtdSistemas;j++) {
-				matrizSistema[i][j] = 0;
+				*(*(matrizSistema + i) + j) = 0;
 			}
 		}
 
@@ -92,12 +92,12 @@ int main() {
 					if (posCol < 0) {//se var n existe dar pos pra ela
 						posVar++;
 						posCol = posVar;
-						vars[posVar] = (char*)malloc(strlen(stringVarAtual));
-						strcpy(vars[posVar], stringVarAtual);
+						*(vars + posVar) = (char*)malloc(strlen(stringVarAtual));
+						strcpy(*(vars + posVar), stringVarAtual);
 					}//se existe colocar na pos dela
 
 
-					matrizSistema[posAtualLinha][posCol] = numASerInserido;
+					*(*(matrizSistema + posAtualLinha) + posCol) = numASerInserido;
 
 					free(stringVarAtual);
 				}
@@ -139,7 +139,7 @@ int main() {
 						numNegativo = false;
 					}
 
-					matrizSistema[posAtualLinha][qtdSistemas] = (float)atof(stringNumAtual);
+					*(*(matrizSistema + posAtualLinha) + qtdSistemas) = (float)atof(stringNumAtual);
 
 					posAtualLinha++;
 					lendoNum = false;
@@ -163,7 +163,7 @@ int main() {
 		}
 		printf("\n==========\n");
 		for (int i = 0; i < qtdSistemas; i++) {
-			printf("%s = %.6f\n", vars[i], resultados[i]);
+			printf("%s = %.6f\n", *(vars + i), *(resultados + i));
 		}
 
 		printf("\nSair do programa? (s/n)\n");
@@ -181,12 +181,12 @@ int getSolucao(float * solucao, float **matrizSistema, int columns, int rows) {
 	float valorColuna;
 comeco:
 	for (int i = 0; i < rows; i++) {
-		valorDiagonalPrincipal = matrizSistema[i][i];
+		valorDiagonalPrincipal = *(*(matrizSistema + i) + i);
 
 		if (valorDiagonalPrincipal == 0) {
 			cont = i;
 			do {
-				valorColuna = matrizSistema[cont][i];
+				valorColuna = *(*(matrizSistema + cont) + i);
 				cont++;
 			} while (valorColuna == 0 && cont < qtdSistemas);
 
@@ -205,17 +205,17 @@ comeco:
 			if (j != i) {
 				linhaAtual = (float*)malloc(sizeof(float) * columns);
 				for (int k = 0; k < columns; k++) {
-					linhaAtual[k] = matrizSistema[i][k];
+					*(linhaAtual + k) = *(*(matrizSistema + i) + k);
 				}//tem a linha atual
 
-				if (matrizSistema[j][i] != 0) {
-					valorMult = -(matrizSistema[j][i] / valorDiagonalPrincipal);
+				if (*(*(matrizSistema + j) + i) != 0) {
+					valorMult = -(*(*(matrizSistema + j) + i) / valorDiagonalPrincipal);
 
 					multiplicarLinha(linhaAtual, columns, valorMult);
-					matrizSistema[j] = somarFila(columns, matrizSistema[j], linhaAtual);
+					*(matrizSistema + j) = somarFila(columns, *(matrizSistema + j), linhaAtual);
 
 					for (int z = 0; z < columns; z++) {//ve se a linha inteira eh zero, se for, nao eh spd
-						if (matrizSistema[j][z] == 0)
+						if (*(*(matrizSistema + j) + z) == 0)
 							cont++;
 					}
 					if (cont >= columns) {
@@ -232,11 +232,11 @@ comeco:
 		}//deixa tudo menos a diagonal principal igual a zero e o valor da diagonal principal igual a 1
 
 		valorMult = 1 / valorDiagonalPrincipal;
-		multiplicarLinha(matrizSistema[i], qtdSistemas + 1, valorMult);
+		multiplicarLinha(*(matrizSistema + i), qtdSistemas + 1, valorMult);
 	}
 
 	for (int i = 0; i < rows; i++) {
-		solucao[i] = matrizSistema[i][rows];
+		*(solucao + i) = *(*(matrizSistema + i) + rows);
 	}
 
 	return SUCESSO;
@@ -246,7 +246,7 @@ float *somarFila(int tam, float *fila1, float *fila2) {
 	float *ret = malloc(tam * sizeof(int));
 
 	for (int i = 0; i < tam; i++) {
-		ret[i] = fila1[i] + fila2[i];
+		*(ret + i) = *(fila1 + i) + *(fila2 + i);
 	}
 
 	return ret;
@@ -254,7 +254,7 @@ float *somarFila(int tam, float *fila1, float *fila2) {
 
 void multiplicarLinha(float *linhaAtual, int tam, float valorMult) {
 	for (int i = 0; i < tam; i++) {
-		linhaAtual[i] *= valorMult;
+		*(linhaAtual + i) *= valorMult;
 	}
 }
 
@@ -275,7 +275,7 @@ void printFloatMatrix(float** matrix, int qtdColumns, int qtdRows) {
 	int columns = 0;
 	for (rows = 0;rows < qtdRows;rows++) {
 		for (columns = 0;columns < qtdColumns;columns++) {
-			printf(" %.6f ", matrix[rows][columns]);
+			printf(" %.6f ", *(*(matrix + rows) + columns));
 		}
 		printf("\n");
 	}
@@ -293,15 +293,15 @@ void trocarLinha(float **matriz, int linha1, int linha2, int tam) {
 	int i;
 	float *linhaAux = (float*)malloc(sizeof(float) * tam);
 	for (i = 0; i < tam; i++) {
-		linhaAux[i] = matriz[linha1][i];
+		*(linhaAux + i) = *(*(matriz + linha1) + i);
 	}
 
 	for (i = 0; i < tam; i++) {
-		matriz[linha1][i] = matriz[linha2][i];
+		*(*(matriz + linha1) + i) = *(*(matriz + linha2) + i);
 	}
 
 	for (i = 0; i < tam; i++) {
-		matriz[linha2][i] = linhaAux[i];
+		*(*(matriz + linha2) + i) = *(linhaAux + i);
 	}
 
 	free(linhaAux);
@@ -310,7 +310,7 @@ void trocarLinha(float **matriz, int linha1, int linha2, int tam) {
 int getPos(char **arr, int len, char *target) {
 	int i;
 	for (i = 0; i < len; i++) {
-		if (strncmp(arr[i], target, strlen(target)) == 0) {
+		if (strncmp(*(arr + i), target, strlen(target)) == 0) {
 			return i;
 		}
 	}
