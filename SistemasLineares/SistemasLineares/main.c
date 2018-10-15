@@ -39,6 +39,7 @@ int posAtualLinha = 0;
 int posAtualColuna = -1;
 float numASerInserido;
 int posVar = -1;
+char * diretorio;
 
 char **vars;//precisa ser lista
 float *resultados;
@@ -49,7 +50,11 @@ int main() {
 	int res;
 
 	do {
-		f = fopen("C:/temp/teste.txt", "r");
+		printf("Digite o diretorio:\n");
+		diretorio = criarString();
+		scanf("%s", diretorio);
+
+		f = fopen(diretorio, "r");
 
 		if (f == NULL)
 		{
@@ -66,7 +71,7 @@ int main() {
 
 		//criar as listas pra salvar o nome das variaveis
 		qtdSistemas = atoi(qtdSistemasString);
-		printf("%d\n\n", qtdSistemas);
+		//printf("%d\n\n", qtdSistemas);
 
 		vars = (char**)malloc(qtdSistemas);
 
@@ -152,7 +157,7 @@ int main() {
 				}
 			}
 		} while (ch != EOF);
-		printFloatMatrix(matrizSistema, qtdSistemas + 1, qtdSistemas);
+		//printFloatMatrix(matrizSistema, qtdSistemas + 1, qtdSistemas);
 
 		resultados = (float*)malloc(sizeof(int) * qtdSistemas);
 
@@ -160,13 +165,15 @@ int main() {
 		res = getSolucao(resultados, matrizSistema, qtdSistemas + 1, qtdSistemas);
 		if (res != SUCESSO) {
 			if (res == NAO_SPD) {
-				fprintf(stderr, "%s", "O sistema nao eh S.P.D.!\n");
-				//return ERRO;
+				fprintf(stderr, "%s", "\nO sistema nao eh S.P.D.!\n");
+				//return 0;
 			}
 		}
-		printf("\n==========\n");
-		for (int i = 0; i < qtdSistemas; i++) {
-			printf("%s = %.6f\n", *(vars + i), *(resultados + i));
+		else {
+			printf("\n==========\n");
+			for (int i = 0; i < qtdSistemas; i++) {
+				printf("%s = %.6f\n", *(vars + i), *(resultados + i));
+			}
 		}
 
 		printf("\nSair do programa? (s/n)\n");
@@ -228,8 +235,8 @@ comeco:
 						cont = 0;
 					}
 				}
-				printf("\n =\n");
-				printFloatMatrix(matrizSistema, qtdSistemas + 1, qtdSistemas);
+				//printf("\n =\n");
+				//printFloatMatrix(matrizSistema, qtdSistemas + 1, qtdSistemas);
 				free(linhaAtual);
 			}
 		}//deixa tudo menos a diagonal principal igual a zero e o valor da diagonal principal igual a 1
